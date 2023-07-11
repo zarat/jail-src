@@ -1,0 +1,31 @@
+var f = openfile("demo.txt", "r");
+var c = readfile(f);
+closefile(f);
+
+print(c);
+
+
+/*
+var arr = [1, 2, 3];
+
+arr = arr.shift();
+arr = arr.shift();
+
+print(jail.debug(arr));
+*/
+
+/*
+var arr = ["Anna", "Leopold", "Jango", "Manuel"];
+
+arr = arr.contains("Leopold") ? arr.remove("Leopold") : arr;
+
+arr = arr.reverse();
+
+print( jail.debug( arr ) );
+*/
+
+/*
+var users = system("dir /b C:\\Users");
+var arr = users.trim().split("\n");
+print(arr[arr.length-1]);
+*/

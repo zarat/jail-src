@@ -1,0 +1,10 @@
+class Test {
+
+    prototype: String,
+    a: 1
+
+};
+
+Test.prototype.parse = Char.parse;
+
+print(jail.debug(jail.time()));

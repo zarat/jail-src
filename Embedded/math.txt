@@ -1,0 +1,36 @@
+class Math {
+    sin: function(v) { 
+        return Msin(v);   
+    },
+    cos: function(v) {
+        return Mcos(v);
+    },
+    tan: function(v) {
+        return Mtan(v);
+    },
+    asin: function(v) { 
+        return Masin(v);   
+    },
+    acos: function(v) {
+        return Macos(v);
+    },
+    atan: function(v) {
+        return Matan(v);
+    },
+    asinh: function(v) { 
+        return Masinh(v);   
+    },
+    acosh: function(v) {
+        return Macosh(v);
+    },
+    atanh: function(v) {
+        return Matanh(v);
+    }
+};
+
+var a = float(read());
+
+//print( jail.debug( Math ) );
+
+for(var i = 0; i < Math.length; i++) 
+    print( Math.memberAt(i)(a) + "\n" );

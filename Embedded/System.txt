@@ -1,0 +1,13 @@
+var Console = {
+	Write: function(data) { print(data); },
+	WriteLine: function(data) { print(data + "\n"); },
+	Read: function() { return read(); },
+	ReadLine: function() { return readline(); }
+};
+
+var File = { 
+	Open: function(name, mode) { this.file = openfile(name, mode); },
+	Read: function() { return readfile(this.file); },
+	Write: function(data) { writefile(this.file, data); },
+	Close: function() { closefile(this.file); } 
+};

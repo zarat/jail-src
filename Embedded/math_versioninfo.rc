@@ -1,0 +1,32 @@
+#include <windows.h>
+
+VS_VERSION_INFO         VERSIONINFO
+FILEVERSION             1,0,0,0
+PRODUCTVERSION          1,0,0,0
+FILEFLAGSMASK           VS_FFI_FILEFLAGSMASK
+FILEFLAGS               0
+FILEOS                  VOS_DOS_WINDOWS32
+FILETYPE                VFT_DLL // VFT_APP
+FILESUBTYPE             0 // not used
+
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040704E4"
+    //language ID = German, char set = Windows, Multilingual
+    BEGIN
+      VALUE "FileDescription",  "Jail Math extension 1.0\0"
+      VALUE "FileVersion",  "1.0.0.0\0"
+      VALUE "InternalName", "math.dll\0"
+      VALUE "LegalCopyright",   "Manuel Zarat\0"
+      VALUE "OriginalFilename", "math.dll\0"
+      VALUE "ProductName",  "Jail Math 1.0\0"
+      VALUE "ProductVersion",   "1.0.0.0\0"
+      VALUE "Comments","Visit https://github.com/zarat/jail for more information.\0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0407, 1252
+  END
+END

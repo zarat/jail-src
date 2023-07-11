@@ -1,0 +1,1 @@
+del *.o *.exe *.dll *.lib *.a

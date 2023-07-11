@@ -1,0 +1,11 @@
+print("input a number: ");
+
+var ch = Integer.parse(read());
+
+print("input a string: ");
+
+var str = jail.readLine();
+
+var res = str + " " + Msin(ch);
+
+print(res.toUpper());
