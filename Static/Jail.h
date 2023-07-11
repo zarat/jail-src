@@ -277,7 +277,7 @@ namespace JAIL {
     extern void registerArray(JInterpreter *interpreter);
     extern void registerObject(JInterpreter *interpreter);
 
-    // custom modules
+    // buildt-in functions
     extern void registerFunctions(JInterpreter *interpreter);
     extern void registerMathFunctions(JInterpreter *interpreter);
 
