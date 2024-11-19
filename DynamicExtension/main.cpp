@@ -111,6 +111,19 @@ void print(JAIL::JObject *c, void *data) {
     printf("%s", c->getParameter("str")->getString().c_str());       
 }
 
+std::vector<std::string> getDllFiles(const std::string& folderPath) {
+    std::vector<std::string> dllFiles;
+    WIN32_FIND_DATA findFileData;
+    HANDLE hFind = FindFirstFile((folderPath + "\\*.dll").c_str(), &findFileData);
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            dllFiles.emplace_back(folderPath + "\\" + findFileData.cFileName);
+        } while (FindNextFile(hFind, &findFileData));
+        FindClose(hFind);
+    }
+    return dllFiles;
+}
+
 int main(int argc, char **argv) {                         
 
 
