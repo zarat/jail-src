@@ -164,15 +164,66 @@ int main(int argc, char **argv) {
     
     
 
-    // Load Plugins
-    MyLibrary myLib("Test.dll");
-
-    //DebugFunction debugFn = (DebugFunction)myLib.GetFunction("registerChar");
-    void (*debugFn)(JAIL::JInterpreter*) = (void (*)(JAIL::JInterpreter*))myLib.GetFunction("registerTest");
-    
-    if (debugFn) {
-        debugFn(&interpreter);
+    /*
+	// Load Plugins
+    MyLibrary myLib1("./plugins/Test1.dll");
+    DebugFunction debugFn1 = (DebugFunction)myLib1.GetFunction("registerLib");
+    if (debugFn1) {
+        debugFn1(&interpreter);
     } 
+
+    MyLibrary myLib2("./plugins/Test2.dll");
+	DebugFunction debugFn2 = (DebugFunction)myLib2.GetFunction("registerLib");
+    if (debugFn2) {
+        debugFn2(&interpreter);
+    } 
+	*/
+	
+	/*
+	// Load plugins from array
+    const char* dlls[] = { "./plugins/Test1.dll", "./plugins/Test2.dll" };
+    size_t dllCount = sizeof(dlls) / sizeof(dlls[0]);
+	vector<MyLibrary*> loadedLibraries;
+
+    for (size_t i = 0; i < dllCount; i++) {
+        
+		MyLibrary* myLib = new MyLibrary(dlls[i]);
+        
+		if (!myLib->IsValid()) {
+            //printf("Failed to load library: %s\n", dlls[i]);
+            delete myLib;
+            continue;
+        }
+		DebugFunction debugFn = (DebugFunction)myLib->GetFunction("registerLib");
+        if (debugFn) {
+            debugFn(&interpreter);
+            loadedLibraries.push_back(myLib);
+        } else {
+            //printf("Failed to find 'registerLib' in %s\n", dlls[i]);
+            delete myLib;
+        }
+    }
+	*/
+	
+	
+	// Load plugins from directory
+	std::string pluginFolder = "./";
+	std::vector<std::string> dllFiles = getDllFiles(pluginFolder);
+    std::vector<MyLibrary*> loadedLibraries;
+    for (const std::string& dllPath : dllFiles) {
+        MyLibrary* myLib = new MyLibrary(dllPath.c_str());    
+        if (!myLib->IsValid()) {
+            delete myLib;
+            continue;
+        }
+        DebugFunction debugFn = (DebugFunction)myLib->GetFunction("registerLib");
+        if (debugFn) {
+            debugFn(&interpreter);
+            loadedLibraries.push_back(myLib);
+        } else {
+            delete myLib;
+        }
+    }
 
 
 
@@ -198,6 +249,10 @@ int main(int argc, char **argv) {
         return 0;
         
     } 
+
+    for (MyLibrary* lib : loadedLibraries) {
+        delete lib;
+    }
     
     // get the global variable from script context
     //printf("retVal: %d", interpreter.root->getParameter("returnvalue")->getInt());
