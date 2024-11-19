@@ -63,6 +63,10 @@ public:
         return MyLoadProc(libHandle, proc);
     }
 
+    bool IsValid() const {
+        return libHandle != nullptr;
+    }
+
 private:
     lib_t libHandle;
 };
