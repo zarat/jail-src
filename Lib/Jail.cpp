@@ -2354,17 +2354,17 @@ JLink *JInterpreter::unary(bool &execute) {
         
     } 
     else if (l->tk=='~') {
-        l->match('~'); // bitwise not
-        a = factor(execute);
         
-        if (execute) {
-
-            JObject zero(0);
-            JObject *res = a->var->mathsOp(&zero, LEXER_EQUAL);
-            CREATE_LINK(a, res);
-        }
-        
-        printf("XXX");
+        l->match('~'); // bitwise NOT
+    		a = factor(execute);
+    
+    		if (execute) {
+    			  if (a->var->isInt()) { 
+    				    int value = a->var->getInt();
+    				    JObject *res = new JObject(~value);
+    				    CREATE_LINK(a, res);
+    			  } 
+    		}
         
     } 
     else
