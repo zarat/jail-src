@@ -254,10 +254,9 @@ namespace JAIL {
     }
 
     void scStringFromCharCode(JObject *c, void *) {
-        char str[2];
-        str[0] = c->getParameter("char")->getInt();
-        str[1] = 0;
-        c->getReturnVar()->setString(str);
+        int intValue = c->getParameter("int")->getInt();
+	std::string result(1, intValue);
+	c->getReturnVar()->setString(result);
     }
     
 	void scStringToLower(JObject *c, void *) {
@@ -283,7 +282,7 @@ namespace JAIL {
         interpreter->addNative("function String.substring(start, end)", scStringSubstring, 0);               
         interpreter->addNative("function String.charAt(pos)", scStringCharAt, 0);
         interpreter->addNative("function String.charCodeAt(pos)", scStringCharCodeAt, 0); 
-        //interpreter->addNative("function String.fromCharCode(char)", scStringFromCharCode, 0);
+        interpreter->addNative("function String.fromCharCode(char)", scStringFromCharCode, 0);
         interpreter->addNative("function String.split(sep)", scStringSplit, interpreter);       
         interpreter->addNative("function String.replace(from, to)", scStringReplace, 0);
         interpreter->addNative("function String.replaceAll(from, to)", scStringReplaceAll, 0);
