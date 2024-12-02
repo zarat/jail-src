@@ -2620,8 +2620,7 @@ JLink *JInterpreter::base(bool &execute) {
                 CLEAN(lhs);
                 lhs = realLhs;               
             } 
-            else 
-                TRACE("Trying to assign to an un-named type");
+            // else TRACE("Trying to assign to an un-named type");
             
         }
 
