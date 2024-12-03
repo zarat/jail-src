@@ -62,12 +62,33 @@ void scIntegerParseInt(JObject *c, void *) {
         c->getReturnVar()->setUndefined();
 }
 
+void scIntegerHex(JObject *c, void *) {
+    std::string fmt = c->getParameter("fmt")->getString();
+	int self = c->getParameter("this")->getInt();
+	char buffer[1024] = {0};
+	snprintf(buffer, sizeof(buffer), fmt.c_str(), self);
+	c->getReturnVar()->setString(std::string(buffer));
+}
+void scIntegerBin(JObject *c, void *) {
+    int self = c->getParameter("this")->getInt();
+	int len = c->getParameter("len")->getInt();
+	std::string binary;
+	//for (int i = sizeof(int) * 8 - 1; i >= 0; --i) {
+	for (int i = len - 1; i >= 0; --i) {
+		binary += ((self >> i) & 1) ? '1' : '0';
+	}
+	binary += "b";
+	c->getReturnVar()->setString(binary);
+}
+
 void registerInteger(JInterpreter *interpreter) {
 
     interpreter->addNative("function Integer.rand()", scMathRand, 0);
     interpreter->addNative("function Integer.range(min, max)", scMathRandInRange, 0);    
     //interpreter->addNative("function Integer.fromChar(ch)", scCharToInt, 0);
     interpreter->addNative("function Integer.parse(str)", scIntegerParseInt, 0); // string to int
+    interpreter->addNative("function Integer.hex(fmt)", scIntegerHex, 0);
+	interpreter->addNative("function Integer.bin(len)", scIntegerBin, 0);
 
 }
 
