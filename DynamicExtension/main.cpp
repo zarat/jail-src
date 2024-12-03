@@ -128,14 +128,10 @@ std::vector<std::string> getDllFiles(const std::string& folderPath) {
     return dllFiles;
 }
 
-std::string getExecutablePath() {
+std::string getExecutableDirectory() {
     char buffer[MAX_PATH];
     GetModuleFileNameA(NULL, buffer, MAX_PATH);
-    return std::string(buffer);
-}
-
-std::string getExecutableDirectory() {
-    std::string execPath = getExecutablePath();
+    std::string execPath = std::string(buffer);
     size_t lastSlash = execPath.find_last_of("\\/");
     return execPath.substr(0, lastSlash);
 }
