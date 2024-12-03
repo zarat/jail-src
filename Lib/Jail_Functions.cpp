@@ -124,9 +124,52 @@ std::map<int, OpenFile> openFiles;
     }
     
     //todo
-    void scConsoleWriteByte(JObject *c, void *) {      
+    void scConsoleWriteFormat(JObject *c, void *) {      
         printf("%c", c->getParameter("ch")->getInt());   
     }
+
+	__declspec(dllexport) void scConsolePrintf(JAIL::JObject *c, void *) {
+
+		std::string format = c->getParameter("format")->getString();
+
+		JAIL::JObject *args = c->getParameter("args");
+		int argCount = args->getArrayLength();
+
+		std::ostringstream formattedString;
+		size_t formatLen = format.length();
+		size_t argIndex = 0;
+
+		for (size_t i = 0; i < formatLen; ++i) {
+		if (format[i] == '%' && (i + 1 < formatLen) && (format[i + 1] != ' ') && (format[i + 1] != '%') ) {
+				char specifier = format[i + 1];
+				if (argIndex < argCount) {
+					JAIL::JObject *arg = args->getArrayIndex(argIndex);
+					switch (specifier) {
+						case 'd':
+							formattedString << arg->getInt();
+							break;
+						case 'f':
+							formattedString << arg->getDouble();
+							break;
+						case 's':
+							formattedString << arg->getString();
+							break;
+						default:
+							formattedString << specifier;
+							break;
+					}
+					++argIndex;
+					++i; 
+				} else {
+					formattedString << '%';
+				}
+			} else {
+				formattedString << format[i];
+			}
+		}
+
+		c->getReturnVar()->setString(formattedString.str());
+	}
     
     // system() 
     void scProcessExec(JObject *c, void *) {
@@ -523,6 +566,7 @@ __declspec(dllexport) void scWriteFileRangeC(JAIL::JObject *c, void *data) {
         interpreter->addNative("function jail.readLine()", scConsoleReadLine, 0);
         //interpreter->addNative("function print(str)", scConsoleWrite, 0);
         //interpreter->addNative("function printc(ch)", scConsoleWriteByte, 0);
+	interpreter->addNative("function jail.format(format, args)", scConsoleWriteFormat, 0);
 
         interpreter->addNative("function jail.fopen(src, mode)", scOpenFile, 0);
         interpreter->addNative("function jail.fread(src)", scReadFile, 0);
