@@ -1,5 +1,7 @@
 #include <sstream>
 #include <fstream>
+#include <iostream>
+
 #include <map>
 
 #ifdef _WIN32
@@ -178,15 +180,16 @@ int main(int argc, char **argv) {
     JAIL::registerObject(&interpreter);
     
     // register custom functions 
-    JAIL::registerFunctions(&interpreter);
-    JAIL::registerMathFunctions(&interpreter);
+    //JAIL::registerFunctions(&interpreter);
+    //JAIL::registerMathFunctions(&interpreter);
     
     // register custom inline functions
+	/*
     interpreter.addNative("function jail.eval(code)", eval, &interpreter);
     interpreter.addNative("function jail.exec(code)", exec, &interpreter);
     interpreter.addNative("function jail.debug(a)", debug, 0);
     interpreter.addNative("function print(str)", print, 0);
-    
+    */
     
 
     /*
@@ -232,23 +235,23 @@ int main(int argc, char **argv) {
 	
 	
 	// Load plugins from directory
-	std::string pluginFolder = getExecutableDirectory();
+	std::string pluginFolder = getExecutableDirectory(); //"./";
 	std::vector<std::string> dllFiles = getDllFiles(pluginFolder);
-    std::vector<MyLibrary*> loadedLibraries;
-    for (const std::string& dllPath : dllFiles) {
-        MyLibrary* myLib = new MyLibrary(dllPath.c_str());    
-        if (!myLib->IsValid()) {
-            delete myLib;
-            continue;
-        }
-        DebugFunction debugFn = (DebugFunction)myLib->GetFunction("registerLib");
-        if (debugFn) {
-            debugFn(&interpreter);
-            loadedLibraries.push_back(myLib);
-        } else {
-            delete myLib;
-        }
-    }
+	std::vector<MyLibrary*> loadedLibraries;
+	for (const std::string& dllPath : dllFiles) {
+		MyLibrary* myLib = new MyLibrary(dllPath.c_str());		
+		if (!myLib->IsValid()) {
+			delete myLib;
+			continue;
+		}
+		DebugFunction debugFn = (DebugFunction)myLib->GetFunction("registerLib");
+		if (debugFn) {
+			debugFn(&interpreter);
+			loadedLibraries.push_back(myLib);
+		} else {
+			delete myLib;
+		}
+	}
 
 
 
@@ -257,6 +260,29 @@ int main(int argc, char **argv) {
     if(mode == EXEC_MODE) {
         code = argv[2];
     } 
+	
+	else if(mode == INTERACTIVE_MODE) {
+		
+		std::cout << "Jail interactive mode..\n";
+		std::string input;
+		while(true) {
+			
+			std::getline(std::cin, input);
+			if(input == "exit") { break; }
+			try {
+        
+				interpreter.execute(input.c_str());
+
+			} catch (JAIL::Exception *e) { 
+			
+				printf("%s", (char *)e->text.c_str());
+				return 0;
+				
+			}
+			
+		}
+		return 1;
+	}
     
     else
         code = readCode(argv[1]);
