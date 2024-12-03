@@ -385,7 +385,7 @@ std::map<int, OpenFile> openFiles;
 		int len = ftell(f);
 		
 		if (start < 0 || start >= len || end < 0 || end >= len || start > end) {
-			throw std::invalid_argument("Ungültiger Bereich.");
+			//throw std::invalid_argument("Ungültiger Bereich.");
 		}
 		
 		// Startposition setzen
