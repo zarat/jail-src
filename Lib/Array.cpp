@@ -241,86 +241,31 @@ void scArraySort(JObject *c, void *data) {
 void scArrayUnique(JObject *c, void *data) {
 
     JObject *arr = c->getParameter("this");
-    
+
     JObject *uniques = new JObject();
     uniques->setArray();
     int uniquesIndex = 0;
     
-    JObject *newArr = new JObject();
-    newArr->setArray();
-    int newArrIndex = 0;
-    
-    bool isDuplicate = false;
-    
-    // cheack each array index
     JLink *v = arr->firstChild;
-	while (v) {
-    
-        isDuplicate = false;
-        
-        // is it already in uniques?
+    while (v) {
+        bool isDuplicate = false;
+
         JLink *w = uniques->firstChild;
-        if(w) {
-        
-            while(w) {
-            
-                // if not, add it
-                if(w->var != v->var) {
-                    
-                    isDuplicate = true;
-                    
-                }
-                
-                w = w->nextSibling;
-                
+        while (w) {
+            if (w->var->equals(v->var)) {
+                isDuplicate = true;
+                break;
             }
-         
-            if(!isDuplicate) {
-                uniques->setArrayIndex(uniquesIndex++, v->var);
-                isDuplicate = false;
-            }
-            
-        } 
-        else {
+            w = w->nextSibling;
+        }
+
+        if (!isDuplicate) {
             uniques->setArrayIndex(uniquesIndex++, v->var);
         }
-        
+
         v = v->nextSibling;
     }
-    
     c->setReturnVar(uniques);
-    
-    /*
-	JObject *arr = c->getParameter("this");
-	std::stringstream ss;
-	ss << "var inputArr = [";
-	int len = arr->getArrayLength();
-	int i = 0;
-	JLink *v = arr->firstChild;
-	while (v) {
-		if (v->var->isNumeric())
-			ss << v->var->getString();
-		else
-			ss << "\"" << v->var->getString() << "\"";
-		if (i < len - 1)
-			ss << ", ";
-		i++;
-		v = v->nextSibling;
-	}
-	ss << "]; var b = []; var i = 0; var j = 0; while(i < inputArr.length) { if (!b.contains(inputArr[i])) { b[j++] = inputArr[i]; } i++; }";
-	JInterpreter *interpreter = reinterpret_cast<JInterpreter *>(data);
-	interpreter->execute(ss.str());
-	JObject *res = interpreter->getScriptVariable("b");
-	v = res->firstChild;
-	i = 0;
-	while (v) {
-		arr->setArrayIndex(i, v->var);
-		i++;
-		v = v->nextSibling;
-	}
-	c->setReturnVar(res);
-    */
-
 }
 
 void scArrayPush(JObject *c, void *data) {
