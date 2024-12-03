@@ -1,5 +1,8 @@
 #ifdef _WIN32
 #define _WIN32_WINNT 0x501
+#include <cstdarg>
+#include <sstream>
+#include <cstdio> // Für vsnprintf
 #endif
 
 #include <unistd.h> //getcwd(), chdir()
@@ -120,11 +123,63 @@ std::map<int, OpenFile> openFiles;
         c->getReturnVar()->setString(str.c_str());
     }
 
+
     __declspec(dllexport) void scConsoleWrite(JAIL::JObject *c, void *) {
         std::string str = c->getParameter("str")->getString(); 
         std::cout << str;
         c->getReturnVar()->setString(str.c_str());                   
     }
+	
+	__declspec(dllexport) void scConsolePrintf(JAIL::JObject *c, void *) {
+		// Holen des Format-Strings aus den Parametern
+		std::string format = c->getParameter("format")->getString();
+
+		// Den Parameter `args` als Array holen
+		JAIL::JObject *args = c->getParameter("args");
+		int argCount = args->getArrayLength();
+
+		// Konvertiere JAIL::JObject-Werte in ein C++-Stringformat
+		std::ostringstream formattedString;
+		size_t formatLen = format.length();
+		size_t argIndex = 0;
+
+		for (size_t i = 0; i < formatLen; ++i) {
+		if (format[i] == '%' && (i + 1 < formatLen) && (format[i + 1] != ' ') && (format[i + 1] != '%') ) {
+				char specifier = format[i + 1];
+				if (argIndex < argCount) {
+					JAIL::JObject *arg = args->getArrayIndex(argIndex);
+					switch (specifier) {
+						case 'd':
+							formattedString << arg->getInt();
+							break;
+						case 'f':
+							formattedString << arg->getDouble();
+							break;
+						case 's':
+							formattedString << arg->getString();
+							break;
+						default:
+							formattedString << specifier;
+							break;
+					}
+					++argIndex;
+					++i; // Überspringe den Format-Spezifizierer
+				} else {
+					// Wenn nicht genügend Argumente vorhanden sind, füge das Literal hinzu
+					formattedString << '%';
+				}
+			} else {
+				formattedString << format[i];
+			}
+		}
+
+		// Die formatierte Nachricht ausgeben
+		//std::cout << formattedString.str();
+		//printf("%s", formattedString.str().c_str());
+
+		// Rückgabewert setzen, falls benötigt
+		c->getReturnVar()->setString(formattedString.str());
+	}
     
     //todo
     __declspec(dllexport) void scConsoleWriteByte(JAIL::JObject *c, void *) {
@@ -311,6 +366,12 @@ std::map<int, OpenFile> openFiles;
         std::string str = c->getParameter("jsCode")->getString();
         c->setReturnVar(tinyJS->evaluateComplex(str).var);
     }
+	
+	__declspec(dllexport) void scDebug(JAIL::JObject *c, void *data) {
+		std::ostringstream oss;
+		c->getParameter("a")->getJSON(oss);
+		c->getReturnVar()->setString(oss.str());       
+	}
     
     __declspec(dllexport) void scOpenFile(JAIL::JObject *c, void *data) {
         std::string filename = c->getParameter("src")->getString().c_str();
@@ -371,9 +432,43 @@ std::map<int, OpenFile> openFiles;
 
         }
 
-        c->setReturnVar(result);
+        c->getReturnVar()->setArray(result->getArray());
         
     } 
+	
+	__declspec(dllexport) void scReadFileRangeC(JAIL::JObject *c, void *data) {
+		int fileindex = std::stoi(c->getParameter("src")->getString());
+		int start = std::stoi(c->getParameter("start")->getString());
+		int end = std::stoi(c->getParameter("end")->getString());
+		
+		OpenFile _f = openFiles[fileindex];
+		FILE *f = _f.file;
+		
+		// Dateigröße ermitteln
+		fseek(f, 0L, SEEK_END);
+		int len = ftell(f);
+		
+		if (start < 0 || start >= len || end < 0 || end >= len || start > end) {
+			throw std::invalid_argument("Ungültiger Bereich.");
+		}
+		
+		// Startposition setzen
+		fseek(f, start, SEEK_SET);
+		
+		unsigned char ch;
+		unsigned int i = 0;
+
+		JAIL::JObject *result = new JAIL::JObject();
+		result->setArray();
+		
+		// Bereich lesen
+		while (ftell(f) <= end && fread(&ch, sizeof(unsigned char), 1, f) > 0) {
+			result->setArrayIndex(i++, new JAIL::JObject(std::to_string(ch), VARIABLE_INTEGER));
+		}
+		
+		c->getReturnVar()->setArray(result->getArray());
+	}
+
     
     __declspec(dllexport) void scWriteFile(JAIL::JObject *c, void *data) {
     
@@ -411,6 +506,31 @@ std::map<int, OpenFile> openFiles;
 		c->getReturnVar()->setInt(1);
 
 	}
+	
+	__declspec(dllexport) void scWriteFileRangeC(JAIL::JObject *c, void *data) {
+
+		int fileindex = c->getParameter("src")->getInt();
+		OpenFile _f = openFiles[fileindex];
+		FILE *f = _f.file;
+		
+		int start = c->getParameter("pos")->getInt();
+		
+		JAIL::JObject *array = c->getParameter("data");
+		int len = array->getArrayLength();
+		char buffer[len] = { 0 };
+		JLink *v = array->firstChild;
+		int i = 0;
+		while (v) {
+			buffer[i] = (char)array->getArrayIndex(i)->getInt();
+			i++;
+			v = v->nextSibling;
+		}
+		fseek(f, start, SEEK_SET);
+		fwrite(buffer, sizeof(char), len, f);
+		c->getReturnVar()->setInt(1);
+	
+	}
+
 
     __declspec(dllexport) void scCloseFile(JAIL::JObject *c, void *data) {
     
@@ -460,45 +580,110 @@ std::map<int, OpenFile> openFiles;
     __declspec(dllexport) void scExit(JAIL::JObject *c, void* data) {
         exit(c->getParameter("code")->getInt());
     }
+	
+	__declspec(dllexport) void scTest(JAIL::JObject *c, void *data) {
+        
+		JAIL::JObject *arr = new JAIL::JObject();
+		arr->setArray();	
+		arr->setArrayIndex(0, new JAIL::JObject(42)); 
+		arr->setArrayIndex(1, new JAIL::JObject("Text")); 
+		JLink *u = arr->firstChild;
+		int i = 0;
+		while(u) {
+			JObject* element = arr->getArrayIndex(i);
+			//printf("%d %s\n", i, element->getString().c_str());
+			i++;
+			u = u->nextSibling;
+		}
+		//c->getReturnVar()->setArray(arr->getArray());
+
+		JAIL::JObject *obj = new JAIL::JObject();
+		obj->addChild("key0", arr);
+		obj->addChild("key1", new JAIL::JObject(42));
+		obj->addChild("key2", new JAIL::JObject("Text"));  
+		JAIL::JLink *linkToRemove = obj->findChild("key1");
+		if (linkToRemove) {
+			obj->removeLink(linkToRemove);
+		}
+		//c->setReturnVar(obj);
+		
+		JObject *self = c->getParameter("this");
+		JLink *v = self->firstChild;
+		while (v) {  
+			printf("%s -> %s\n", v->name.c_str(), v->var->getString().c_str());
+			v = v->nextSibling;
+		}
+		
+		
+		JAIL::JInterpreter *interpreter = (JAIL::JInterpreter *)data;
+		obj->addChild("b", arr);
+		interpreter->root->addChild("t", obj);
+		
+		/*
+		JObject *obj = c->getParameter("obj");  
+		JObject *result = new JObject();
+		result->setArray();  
+		JLink *v = self->firstChild;
+		int i = 0;
+		while (v) {  
+		if (!v->var->equals(obj)) {        
+		result->setArrayIndex(i, v->var);        
+		i++;
+		}
+		v = v->nextSibling;
+		}    
+		c->setReturnVar(result);
+		*/
+		
+    }
 
     __declspec(dllexport) void registerLib(JAIL::JInterpreter *interpreter) {
     
         // input/output
         // todo
-        interpreter->addNative("function jail.read()", scConsoleRead, 0);
-        interpreter->addNative("function jail.readLine()", scConsoleReadLine, 0);
-        //interpreter->addNative("function print(str)", scConsoleWrite, 0);
-        //interpreter->addNative("function printc(ch)", scConsoleWriteByte, 0);
+        interpreter->addNative("function Std.read()", scConsoleRead, 0);
+        interpreter->addNative("function Std.readLine()", scConsoleReadLine, 0);
+		//interpreter->addNative("function Std.scanf(format)", scConsoleScanf, 0);
+        interpreter->addNative("function Std.print(str)", scConsoleWrite, 0);
+        interpreter->addNative("function Std.printc(ch)", scConsoleWriteByte, 0);
+		interpreter->addNative("function Std.format(format, args)", scConsolePrintf, 0);
+		
+		interpreter->addNative("function Std.eval(code)", scEval, interpreter);
+		interpreter->addNative("function Std.exec(code)", scExec, interpreter);
+		interpreter->addNative("function Std.debug(a)", scDebug, 0);
 
-        interpreter->addNative("function jail.fopen(src, mode)", scOpenFile, 0);
-        interpreter->addNative("function jail.fread(src)", scReadFile, 0);
-        interpreter->addNative("function jail.freadc(src)", scReadFileC, interpreter);
-        interpreter->addNative("function jail.fwrite(src, data)", scWriteFile, 0);
-		interpreter->addNative("function jail.fwritec(src, data)", scWriteFileC, 0);
-        interpreter->addNative("function jail.fclose(src)", scCloseFile, 0);
+        interpreter->addNative("function Std.fopen(src, mode)", scOpenFile, 0);
+        interpreter->addNative("function Std.fread(src)", scReadFile, 0);
+        interpreter->addNative("function Std.freadc(src)", scReadFileC, interpreter);
+		interpreter->addNative("function Std.freadrc(src, start, end)", scReadFileRangeC, interpreter);
+        interpreter->addNative("function Std.fwrite(src, data)", scWriteFile, 0);
+		interpreter->addNative("function Std.fwritec(src, data)", scWriteFileC, 0);
+		interpreter->addNative("function Std.fwriterc(src, pos, data)", scWriteFileRangeC, 0);
+        interpreter->addNative("function Std.fclose(src)", scCloseFile, 0);
         
 
-        interpreter->addNative("function jail.system(cmd)", scProcessExec, 0);
-        interpreter->addNative("function jail.getEnv(str)", scGetEnv, 0);
-        interpreter->addNative("function jail.setEnv(k, v)", scSetEnv, 0);    
-        interpreter->addNative("function jail.time()", scSystemTime, 0);
-        interpreter->addNative("function jail.timef(str)", scSystemTimeF, 0);
-        interpreter->addNative("function jail.date()", scSystemDate, 0);
-        interpreter->addNative("function jail.typeOf(v)", scTypeOf, interpreter);
-        interpreter->addNative("function jail.import(src)", scImportFile, interpreter);
+        interpreter->addNative("function Std.system(cmd)", scProcessExec, 0);
+        interpreter->addNative("function Std.getEnv(str)", scGetEnv, 0);
+        interpreter->addNative("function Std.setEnv(k, v)", scSetEnv, 0);    
+        interpreter->addNative("function Std.time()", scSystemTime, 0);
+        interpreter->addNative("function Std.timef(str)", scSystemTimeF, 0);
+        interpreter->addNative("function Std.date()", scSystemDate, 0);
+        interpreter->addNative("function Std.typeOf(v)", scTypeOf, interpreter);
+        interpreter->addNative("function Std.import(src)", scImportFile, interpreter);
     
         // @deprecated
-        interpreter->addNative("function jail.parse(jsCode)", scEval, interpreter);        
+        interpreter->addNative("function Std.parse(jsCode)", scEval, interpreter);        
 
-        interpreter->addNative("function jail.atob(data)", scBase64Encode, 0);
-        interpreter->addNative("function jail.btoa(data)", scBase64Decode, 0); 
-        interpreter->addNative("function jail.md5(data)", scMd5, 0);
+        interpreter->addNative("function Std.atob(data)", scBase64Encode, 0);
+        interpreter->addNative("function Std.btoa(data)", scBase64Decode, 0); 
+        interpreter->addNative("function Std.md5(data)", scMd5, 0);
         
-        interpreter->addNative("function jail.readDir(path)", scReadDir, 0);
-        interpreter->addNative("function jail.cwd()", scCwd, 0);
-        interpreter->addNative("function jail.chdir(str)", scChDir, 0);
+        interpreter->addNative("function Std.readDir(path)", scReadDir, 0);
+        interpreter->addNative("function Std.cwd()", scCwd, 0);
+        interpreter->addNative("function Std.chdir(str)", scChDir, 0);
 	    
-	   interpreter->addNative("function jail.exit(code)", scExit, 0);
+	   interpreter->addNative("function Std.exit(code)", scExit, 0);
+	   interpreter->addNative("function Object.test(obj)", scTest, interpreter);
         
     }
 
