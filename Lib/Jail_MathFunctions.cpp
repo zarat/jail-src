@@ -234,29 +234,26 @@ void scMathSqrt(JObject *c, void *userdata) {
 }
 
 void scMathAvg(JObject *c, void *data) {
-    // Array abrufen
+
     JObject *arr = c->getParameter("arr");
 
-    // Initialisierung von Summe und Zähler
     double sum = 0.0;
     int count = 0;
 
     // Iteration über das Array
     JLink *v = arr->firstChild;
     while (v) {
-        // Prüfen, ob das Element numerisch ist
         if (v->var->isNumeric()) {
             // Wert zur Summe hinzufügen
-            sum += v->var->getDouble(); // Annahme: `getDouble()` gibt den numerischen Wert zurück
+            sum += v->var->getDouble(); 
             count++;
         }
         v = v->nextSibling;
     }
 
-    // Durchschnitt berechnen
+    // Durchschnitt
     double avg = count > 0 ? (sum / count) : 0.0;
-
-    // Ergebnis zurückgeben
+ 
     c->getReturnVar()->setDouble(avg);
 }
 
