@@ -370,7 +370,40 @@ std::map<int, OpenFile> openFiles;
 
         c->setReturnVar(result);
         
-    } 
+    }
+
+	__declspec(dllexport) void scReadFileRangeC(JAIL::JObject *c, void *data) {
+		int fileindex = std::stoi(c->getParameter("src")->getString());
+		int start = std::stoi(c->getParameter("start")->getString());
+		int end = std::stoi(c->getParameter("end")->getString());
+		
+		OpenFile _f = openFiles[fileindex];
+		FILE *f = _f.file;
+		
+		// Dateigröße ermitteln
+		fseek(f, 0L, SEEK_END);
+		int len = ftell(f);
+		
+		if (start < 0 || start >= len || end < 0 || end >= len || start > end) {
+			throw std::invalid_argument("Ungültiger Bereich.");
+		}
+		
+		// Startposition setzen
+		fseek(f, start, SEEK_SET);
+		
+		unsigned char ch;
+		unsigned int i = 0;
+
+		JAIL::JObject *result = new JAIL::JObject();
+		result->setArray();
+		
+		// Bereich lesen
+		while (ftell(f) <= end && fread(&ch, sizeof(unsigned char), 1, f) > 0) {
+			result->setArrayIndex(i++, new JAIL::JObject(std::to_string(ch), VARIABLE_INTEGER));
+		}
+		
+		c->getReturnVar()->setArray(result->getArray());
+	}
     
     void scWriteFile(JObject *c, void *data) {
     
@@ -407,6 +440,30 @@ std::map<int, OpenFile> openFiles;
 
 		c->getReturnVar()->setInt(1);
 
+	}
+
+__declspec(dllexport) void scWriteFileRangeC(JAIL::JObject *c, void *data) {
+
+		int fileindex = c->getParameter("src")->getInt();
+		OpenFile _f = openFiles[fileindex];
+		FILE *f = _f.file;
+		
+		int start = c->getParameter("pos")->getInt();
+		
+		JAIL::JObject *array = c->getParameter("data");
+		int len = array->getArrayLength();
+		char buffer[len] = { 0 };
+		JLink *v = array->firstChild;
+		int i = 0;
+		while (v) {
+			buffer[i] = (char)array->getArrayIndex(i)->getInt();
+			i++;
+			v = v->nextSibling;
+		}
+		fseek(f, start, SEEK_SET);
+		fwrite(buffer, sizeof(char), len, f);
+		c->getReturnVar()->setInt(1);
+	
 	}
 
     void scCloseFile(JObject *c, void *data) {
@@ -470,8 +527,10 @@ std::map<int, OpenFile> openFiles;
         interpreter->addNative("function jail.fopen(src, mode)", scOpenFile, 0);
         interpreter->addNative("function jail.fread(src)", scReadFile, 0);
         interpreter->addNative("function jail.freadc(src)", scReadFileC, interpreter);
+	interpreter->addNative("function jail.freadrc(src, start, end)", scReadFileRangeC, 0);
         interpreter->addNative("function jail.fwrite(src, data)", scWriteFile, 0);
-		interpreter->addNative("function jail.fwritec(src, data)", scWriteFileC, 0);
+	interpreter->addNative("function jail.fwritec(src, data)", scWriteFileC, 0);
+	interpreter->addNative("function Std.fwriterc(src, pos, data)", scWriteFileRangeC, 0);
         interpreter->addNative("function jail.fclose(src)", scCloseFile, 0);
         
 
