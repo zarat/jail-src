@@ -250,8 +250,11 @@ std::map<int, OpenFile> openFiles;
         // milli and microseconds
         v->setArrayIndex(3, new JAIL::JObject((int)now.tv_usec / 1000));
         v->setArrayIndex(4, new JAIL::JObject((int)now.tv_usec));
+
+	// Unixtimestamp
+	v->setArrayIndex(5, new JAIL::JObject((int)now.tv_sec));
         
-        c->getReturnVar()->setArray(v->getArray());   
+        c->setReturnVar(v);   
              
     }
     
