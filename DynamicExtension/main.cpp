@@ -128,6 +128,18 @@ std::vector<std::string> getDllFiles(const std::string& folderPath) {
     return dllFiles;
 }
 
+std::string getExecutablePath() {
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    return std::string(buffer);
+}
+
+std::string getExecutableDirectory() {
+    std::string execPath = getExecutablePath();
+    size_t lastSlash = execPath.find_last_of("\\/");
+    return execPath.substr(0, lastSlash);
+}
+
 int main(int argc, char **argv) {                         
 
 
@@ -224,7 +236,7 @@ int main(int argc, char **argv) {
 	
 	
 	// Load plugins from directory
-	std::string pluginFolder = "./";
+	std::string pluginFolder = getExecutableDirectory();
 	std::vector<std::string> dllFiles = getDllFiles(pluginFolder);
     std::vector<MyLibrary*> loadedLibraries;
     for (const std::string& dllPath : dllFiles) {
