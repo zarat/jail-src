@@ -124,11 +124,11 @@ std::map<int, OpenFile> openFiles;
     }
     
     //todo
-    void scConsoleWriteFormat(JObject *c, void *) {      
+    void scConsoleWriteByte(JObject *c, void *) {      
         printf("%c", c->getParameter("ch")->getInt());   
     }
 
-	__declspec(dllexport) void scConsolePrintf(JAIL::JObject *c, void *) {
+	__declspec(dllexport) void scConsoleWriteFormat(JAIL::JObject *c, void *) {
 
 		std::string format = c->getParameter("format")->getString();
 
