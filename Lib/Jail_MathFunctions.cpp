@@ -233,6 +233,33 @@ void scMathSqrt(JObject *c, void *userdata) {
     scReturnDouble( sqrt( scGetDouble("a") ) );
 }
 
+void scMathAvg(JObject *c, void *data) {
+    // Array abrufen
+    JObject *arr = c->getParameter("arr");
+
+    // Initialisierung von Summe und Zähler
+    double sum = 0.0;
+    int count = 0;
+
+    // Iteration über das Array
+    JLink *v = arr->firstChild;
+    while (v) {
+        // Prüfen, ob das Element numerisch ist
+        if (v->var->isNumeric()) {
+            // Wert zur Summe hinzufügen
+            sum += v->var->getDouble(); // Annahme: `getDouble()` gibt den numerischen Wert zurück
+            count++;
+        }
+        v = v->nextSibling;
+    }
+
+    // Durchschnitt berechnen
+    double avg = count > 0 ? (sum / count) : 0.0;
+
+    // Ergebnis zurückgeben
+    c->getReturnVar()->setDouble(avg);
+}
+
 // ----------------------------------------------- Register Functions
 void registerMathFunctions(JAIL::JInterpreter *interpreter) {
      
@@ -268,6 +295,7 @@ void registerMathFunctions(JAIL::JInterpreter *interpreter) {
     
     interpreter->addNative("function Math.sqr(a)", scMathSqr, 0);
     interpreter->addNative("function Math.sqrt(a)", scMathSqrt, 0); 
+    interpreter->addNative("function Math.avg(arr)", scMathAvg, 0);
 
 }
 
