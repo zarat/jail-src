@@ -2651,15 +2651,15 @@ JLink *JInterpreter::base(bool &execute) {
             }            
             else if (op==LEXER_AND) {
                 JObject *res = lhs->var->mathsOp(rhs->var, '&');
-                lhs->replaceWith(res);
+                CREATE_LINK(lhs, res); //lhs->replaceWith(res);
             }             
             else if (op==LEXER_OR) {
                 JObject *res = lhs->var->mathsOp(rhs->var, '|');
-                lhs->replaceWith(res);
+                CREATE_LINK(lhs, res); //lhs->replaceWith(res);
             }             
             else if (op==LEXER_XOR) {
                 JObject *res = lhs->var->mathsOp(rhs->var, '^');
-                lhs->replaceWith(res);
+                CREATE_LINK(lhs, res); //lhs->replaceWith(res);
             }             
             else ASSERT(0);
             
