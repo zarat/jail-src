@@ -561,6 +561,30 @@ __declspec(dllexport) void scWriteFileRangeC(JAIL::JObject *c, void *data) {
         exit(c->getParameter("code")->getInt());
     }
 
+    void scRegexp(JAIL::JObject *c, void *data) {    
+        std::string var = c->getParameter("data")->getString(); // (char *)data;
+    	const std::regex r( c->getParameter("regex")->getString().c_str() ); //const std::regex r((char *)data2);  
+    	std::smatch sm;
+		JAIL::JObject *arr = new JAIL::JObject();
+		arr->setArray();
+    	int i = 0;
+        while(regex_search(var, sm, r)) {    
+			arr->setArrayIndex(i, new JAIL::JObject(sm[0]));			
+            i++;
+            var = sm.suffix().str();            
+        }        
+		c->setReturnVar(arr);		
+    } 
+    
+    void scRegexpReplace(JAIL::JObject *c, void *data) {            
+        std::string mystr = c->getParameter("data")->getString(); //(char *)data;  
+        std::regex regexp( c->getParameter("regex")->getString().c_str() );
+        std::string repl = c->getParameter("replace")->getString();         
+        std::string result;
+        regex_replace(back_inserter(result), mystr.begin(), mystr.end(), regexp, repl);
+        c->getReturnVar()->setString(result);    
+    }
+
     void registerFunctions(JAIL::JInterpreter *interpreter) {
     
         // input/output
@@ -601,7 +625,9 @@ __declspec(dllexport) void scWriteFileRangeC(JAIL::JObject *c, void *data) {
         interpreter->addNative("function jail.cwd()", scCwd, 0);
         interpreter->addNative("function jail.chdir(str)", scChDir, 0);
 	    
-	   interpreter->addNative("function jail.exit(code)", scExit, 0);
+	interpreter->addNative("function jail.exit(code)", scExit, 0);
+	interpreter->addNative("function Std.regex(data, regex)", scRegexp, 0);
+	interpreter->addNative("function Std.regexreplace(data, regex, replace)", scRegexpReplace, 0);
         
     }
 
