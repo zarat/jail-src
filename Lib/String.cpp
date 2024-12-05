@@ -273,6 +273,17 @@ namespace JAIL {
 		c->getReturnVar()->setString(str.c_str());
 	}
 
+	void scStringToArray(JObject *c, void *) {
+		
+		std::string str = c->getParameter("this")->getString();	
+		JObject *result = new JAIL::JObject();
+		result->setArray();
+		for (size_t i = 0; i < str.size(); ++i) {
+			result->setArrayIndex(i, new JObject(str[i]));
+		}
+		c->setReturnVar(result);
+	}
+
     void registerString(JInterpreter *interpreter) {
     
         interpreter->addNative("function String.trim()", scStringTrim, 0);
@@ -288,6 +299,7 @@ namespace JAIL {
         interpreter->addNative("function String.replaceAll(from, to)", scStringReplaceAll, 0);
 		interpreter->addNative("function String.toLower()", scStringToLower, 0);
 		interpreter->addNative("function String.toUpper()", scStringToUpper, 0);
+	    interpreter->addNative("function String.toArray()", scStringToArray, 0);
 
     }
 
