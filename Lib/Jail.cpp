@@ -2478,12 +2478,12 @@ JLink *JInterpreter::shift(bool &execute) {
         CLEAN(b);
         
         if (execute) {
-            if (op==LEXER_LSHIFT) {
-				        //a->var->setInt(a->var->getInt() << shift);
-				        int tmp = a->var->getInt() << shift;
-				        JObject *res = new JObject(tmp);
+			if (op==LEXER_LSHIFT) {
+		    	//a->var->setInt(a->var->getInt() << shift);
+				int tmp = a->var->getInt() << shift;
+				JObject *res = new JObject(tmp);
                 CREATE_LINK(a, res);
-			      }
+		}
             if (op==LEXER_RSHIFT) {
 				        //a->var->setInt(a->var->getInt() >> shift);
 				        int tmp = a->var->getInt() >> shift;
