@@ -2478,9 +2478,25 @@ JLink *JInterpreter::shift(bool &execute) {
         CLEAN(b);
         
         if (execute) {
-            if (op==LEXER_LSHIFT) a->var->setInt(a->var->getInt() << shift);
-            if (op==LEXER_RSHIFT) a->var->setInt(a->var->getInt() >> shift);
-            if (op==LEXER_RSHIFTUNSIGNED) a->var->setInt(((unsigned int)a->var->getInt()) >> shift);
+            if (op==LEXER_LSHIFT) {
+				        //a->var->setInt(a->var->getInt() << shift);
+				        int tmp = a->var->getInt() << shift;
+				        JObject *res = new JObject(tmp);
+                CREATE_LINK(a, res);
+			      }
+            if (op==LEXER_RSHIFT) {
+				        //a->var->setInt(a->var->getInt() >> shift);
+				        int tmp = a->var->getInt() >> shift;
+				        JObject *res = new JObject(tmp);
+                CREATE_LINK(a, res);
+			      }
+			      // todo
+            if (op==LEXER_RSHIFTUNSIGNED) {
+				        //a->var->setInt(((unsigned int)a->var->getInt()) >> shift); 
+				        int tmp = ((unsigned int)a->var->getInt()) >> shift;
+				        JObject *res = new JObject(tmp);
+                CREATE_LINK(a, res);
+			      }
         }
       
     }
