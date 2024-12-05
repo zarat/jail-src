@@ -198,7 +198,7 @@ void scArrayReverse(JObject *c, void *data) {
         
 }
 
-// modifies the original and returns a new array
+// returns a new array
 void scArrayConcat(JObject *c, void *data) {
     
     JObject *arr1 = c->getParameter("this");
@@ -225,24 +225,10 @@ void scArrayConcat(JObject *c, void *data) {
     }
     
     c->setReturnVar(newArr);
-    
-    /*
-    JObject *arr1 = c->getParameter("this");
-    JObject *arr2 = c->getParameter("arr");
-
-    int len = arr1->getArrayLength()-1;
-    JLink *v = arr2->firstChild;
-    while(v) {
-        arr1->setArrayIndex(++len, v->var);
-        v = v->nextSibling;
-    }
-    
-    c->setReturnVar(arr1);
-    */
 
 }
 
-// modifies the original and returns a modified copy
+// todo
 void scArraySort(JObject *c, void *data) {
 
 	JObject *arr = c->getParameter("this");
@@ -405,7 +391,7 @@ void scArraySlice(JObject *c, void *data) {
         interpreter->addNative("function Array.remove(obj)", scArrayRemove, 0);
 	interpreter->addNative("function Array.insert(index, obj)", scArrayInsert, 0);
         interpreter->addNative("function Array.join(sep)", scArrayJoin, 0);
-        interpreter->addNative("function Array.concat(arr)", scArrayConcat, 0); // todo: it modifies original
+        interpreter->addNative("function Array.concat(arr)", scArrayConcat, 0); 
         interpreter->addNative("function Array.each(func)", scArrayEach, interpreter);
         interpreter->addNative("function Array.reverse()", scArrayReverse, 0);
         interpreter->addNative("function Array.shift()", scArrayShift, 0);
