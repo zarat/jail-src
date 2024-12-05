@@ -43,6 +43,49 @@ void scArrayRemove(JObject *c, void *data) {
     
 }
 
+void scArrayInsert(JObject *c, void *data) {
+    JObject *arr = c->getParameter("this"); // Das Ziel-Array
+    JObject *objOrArr = c->getParameter("obj"); // Einzelnes Objekt oder Array
+    int index = c->getParameter("index")->getInt(); // Die Einfügeposition
+
+    JObject *newArr = new JObject();
+    newArr->setArray();
+
+    bool isArray = objOrArr->isArray();
+    int insertCount = isArray ? objOrArr->getArrayLength() : 1;
+
+    JLink *v = arr->firstChild;
+    int i = 0;  
+    int j = 0; 
+
+    while (v) {
+        if (i == index) {
+            if (isArray) {
+                for (int k = 0; k < insertCount; k++) {
+                    newArr->setArrayIndex(j++, objOrArr->getArrayIndex(k));
+                }
+            } else {
+                newArr->setArrayIndex(j++, objOrArr);
+            }
+        }
+        newArr->setArrayIndex(j++, v->var);
+        v = v->nextSibling;
+        i++;
+    }
+
+    // index > length
+    if (index >= i) {
+        if (isArray) {
+            for (int k = 0; k < insertCount; k++) {
+                newArr->setArrayIndex(j++, objOrArr->getArrayIndex(k));
+            }
+        } else {
+            newArr->setArrayIndex(j++, objOrArr);
+        }
+    }
+    c->setReturnVar(newArr);
+}
+
 void scArrayJoin(JObject *c, void *data) {
   std::string sep = c->getParameter("sep")->getString();
   JObject *arr = c->getParameter("this");
@@ -360,6 +403,7 @@ void scArraySlice(JObject *c, void *data) {
         interpreter->addNative("function Array.contains(obj)", scArrayContains, 0);
         
         interpreter->addNative("function Array.remove(obj)", scArrayRemove, 0);
+	interpreter->addNative("function Array.insert(index, obj)", scArrayInsert, 0);
         interpreter->addNative("function Array.join(sep)", scArrayJoin, 0);
         interpreter->addNative("function Array.concat(arr)", scArrayConcat, 0); // todo: it modifies original
         interpreter->addNative("function Array.each(func)", scArrayEach, interpreter);
