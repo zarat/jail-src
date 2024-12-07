@@ -198,6 +198,17 @@ void scMathATanh(JObject *c, void *userdata) {
     scReturnDouble( atan( scGetDouble("a") ) );
 }
 
+void scMathATan2(JObject *c, void *userdata) {
+    double y = c->getParameter("y")->getDouble();
+    double x = c->getParameter("x")->getDouble();
+
+    // atan2(y, x) berechnen
+    double result = atan2(y, x);
+
+    // Ergebnis zurückgeben
+    c->getReturnVar()->setDouble(result);
+}
+
 //Math.E() - returns E Neplero value
 void scMathE(JObject *c, void *userdata) {
     scReturnDouble(k_E);
@@ -277,6 +288,7 @@ void registerMathFunctions(JAIL::JInterpreter *interpreter) {
     interpreter->addNative("function Math.acos(a)", scMathACos, 0);
     interpreter->addNative("function Math.tan(a)", scMathTan, 0);
     interpreter->addNative("function Math.atan(a)", scMathATan, 0);
+    interpreter->addNative("function Math.atan2(x, y)", scMathATan2, 0);
     interpreter->addNative("function Math.sinh(a)", scMathSinh, 0);
     interpreter->addNative("function Math.asinh(a)", scMathASinh, 0);
     interpreter->addNative("function Math.cosh(a)", scMathCosh, 0);
