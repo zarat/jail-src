@@ -131,14 +131,12 @@ std::map<int, OpenFile> openFiles;
     }
 	
 	__declspec(dllexport) void scConsolePrintf(JAIL::JObject *c, void *) {
-		// Holen des Format-Strings aus den Parametern
+
 		std::string format = c->getParameter("format")->getString();
 
-		// Den Parameter `args` als Array holen
 		JAIL::JObject *args = c->getParameter("args");
 		int argCount = args->getArrayLength();
 
-		// Konvertiere JAIL::JObject-Werte in ein C++-Stringformat
 		std::ostringstream formattedString;
 		size_t formatLen = format.length();
 		size_t argIndex = 0;
@@ -163,9 +161,8 @@ std::map<int, OpenFile> openFiles;
 							break;
 					}
 					++argIndex;
-					++i; // Überspringe den Format-Spezifizierer
+					++i; 
 				} else {
-					// Wenn nicht genügend Argumente vorhanden sind, füge das Literal hinzu
 					formattedString << '%';
 				}
 			} else {
@@ -173,11 +170,6 @@ std::map<int, OpenFile> openFiles;
 			}
 		}
 
-		// Die formatierte Nachricht ausgeben
-		//std::cout << formattedString.str();
-		//printf("%s", formattedString.str().c_str());
-
-		// Rückgabewert setzen, falls benötigt
 		c->getReturnVar()->setString(formattedString.str());
 	}
     
@@ -249,16 +241,17 @@ std::map<int, OpenFile> openFiles;
         
         // milli and microseconds
         v->setArrayIndex(3, new JAIL::JObject((int)now.tv_usec / 1000));
-        v->setArrayIndex(4, new JAIL::JObject((int)now.tv_usec));
-
-	// Unixtimestamp
-	v->setArrayIndex(5, new JAIL::JObject((int)now.tv_sec));
+        v->setArrayIndex(4, new JAIL::JObject((int)now.tv_usec % 1000));
         
-        c->setReturnVar(v);   
+		// unix timestamp
+		v->setArrayIndex(5, new JAIL::JObject((int)now.tv_sec));  // Sekunden
+
+		//c->getReturnVar()->setArray(v->getArray());
+		c->setReturnVar(v);		
              
     }
     
-    // %d.%m.%Y %H:%M:%S
+    // %d.%m.%Y %H:%M:%S %Z
     __declspec(dllexport) void scSystemTimeF(JAIL::JObject *c, void *) {
         
         char *fmtstr = (char*)c->getParameter("str")->getString().c_str();
@@ -639,6 +632,50 @@ std::map<int, OpenFile> openFiles;
 		*/
 		
     }
+	
+	__declspec(dllexport) void scIntegerFormat(JObject *c, void *) {
+	
+			std::string fmt = c->getParameter("fmt")->getString();
+			int self = c->getParameter("v")->getInt();
+			//printf(fmt.c_str(), self);
+			
+			char buffer[1024] = {0};
+			snprintf(buffer, sizeof(buffer), fmt.c_str(), self);
+			
+			/*
+			for (int i = sizeof(int) * 8 - 1; i >= 0; --i) {
+				printf("%d", (value >> i) & 1); // Bitweise Verschiebung und Maske
+			}
+			printf("b\n");
+			*/
+			
+			//c->getReturnVar()->setInt(val);
+			c->getReturnVar()->setString(std::string(buffer));
+		}
+		
+	__declspec(dllexport) void scRegexp(JAIL::JObject *c, void *data) {    
+        std::string var = c->getParameter("data")->getString(); // (char *)data;
+    	const std::regex r( c->getParameter("regex")->getString().c_str() ); //const std::regex r((char *)data2);  
+    	std::smatch sm;
+		JAIL::JObject *arr = new JAIL::JObject();
+		arr->setArray();
+    	int i = 0;
+        while(regex_search(var, sm, r)) {    
+			arr->setArrayIndex(i, new JAIL::JObject(sm[0]));			
+            i++;
+            var = sm.suffix().str();            
+        }        
+		c->setReturnVar(arr);		
+    } 
+    
+    __declspec(dllexport) void scRegexpReplace(JAIL::JObject *c, void *data) {            
+        std::string mystr = c->getParameter("data")->getString(); //(char *)data;  
+        std::regex regexp( c->getParameter("regex")->getString().c_str() );
+        std::string repl = c->getParameter("replace")->getString();         
+        std::string result;
+        regex_replace(back_inserter(result), mystr.begin(), mystr.end(), regexp, repl);
+        c->getReturnVar()->setString(result);    
+    } 
 
     __declspec(dllexport) void registerLib(JAIL::JInterpreter *interpreter) {
     
@@ -686,7 +723,8 @@ std::map<int, OpenFile> openFiles;
         interpreter->addNative("function Std.chdir(str)", scChDir, 0);
 	    
 	   interpreter->addNative("function Std.exit(code)", scExit, 0);
-	   interpreter->addNative("function Object.test(obj)", scTest, interpreter);
+	   interpreter->addNative("function Std.regex(data, regex)", scRegexp, 0);
+	   interpreter->addNative("function Std.regexreplace(data, regex, replace)", scRegexpReplace, 0);
         
     }
 
