@@ -268,6 +268,14 @@ void scMathAvg(JObject *c, void *data) {
     c->getReturnVar()->setDouble(avg);
 }
 
+void scMathFloor(JObject *c, void *userdata) {
+    if (scIsInt("a")) {
+        scReturnInt(scGetInt("a")); // Integer bleibt unverändert
+    } else if (scIsDouble("a")) {
+        scReturnDouble(floor(scGetDouble("a"))); // Verwende die Standardfunktion floor
+    }
+}
+
 // ----------------------------------------------- Register Functions
 void registerMathFunctions(JAIL::JInterpreter *interpreter) {
      
@@ -305,6 +313,7 @@ void registerMathFunctions(JAIL::JInterpreter *interpreter) {
     interpreter->addNative("function Math.sqr(a)", scMathSqr, 0);
     interpreter->addNative("function Math.sqrt(a)", scMathSqrt, 0); 
     interpreter->addNative("function Math.avg(arr)", scMathAvg, 0);
+  interpreter->addNative("function Math.floor(a)", scMathFloor, 0);
 
 }
 
