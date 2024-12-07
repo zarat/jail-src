@@ -130,7 +130,7 @@ __declspec(dllexport) void scMathSign(JObject *c, void *userdata) {
 
 //Math.PI() - returns PI value
 __declspec(dllexport) void scMathPI(JObject *c, void *userdata) {
-    scReturnDouble(k_PI);
+	c->getReturnVar()->setDouble(k_PI);
 }
 
 //Math.toDegrees(a) - returns degree value of a given angle in radians
@@ -278,6 +278,15 @@ __declspec(dllexport) void scMathAvg(JObject *c, void *data) {
     c->getReturnVar()->setDouble(avg);
 }
 
+//Math.floor(a) - returns the largest integer less than or equal to the given number
+__declspec(dllexport) void scMathFloor(JObject *c, void *userdata) {
+    if (scIsInt("a")) {
+        scReturnInt(scGetInt("a")); // Integer bleibt unverändert
+    } else if (scIsDouble("a")) {
+        scReturnDouble(floor(scGetDouble("a"))); // Verwende die Standardfunktion floor
+    }
+}
+
 // ----------------------------------------------- Register Functions
 __declspec(dllexport) void registerLib(JAIL::JInterpreter *interpreter) {
      
@@ -289,7 +298,6 @@ __declspec(dllexport) void registerLib(JAIL::JInterpreter *interpreter) {
     interpreter->addNative("function Math.range(x,a,b)", scMathRange, 0);
     interpreter->addNative("function Math.sign(a)", scMathSign, 0);
     
-    interpreter->addNative("function Math.PI()", scMathPI, 0);
     interpreter->addNative("function Math.toDegrees(a)", scMathToDegrees, 0);
     interpreter->addNative("function Math.toRadians(a)", scMathToRadians, 0);
     interpreter->addNative("function Math.sin(a)", scMathSin, 0);
@@ -305,7 +313,8 @@ __declspec(dllexport) void registerLib(JAIL::JInterpreter *interpreter) {
     interpreter->addNative("function Math.acosh(a)", scMathACosh, 0);
     interpreter->addNative("function Math.tanh(a)", scMathTanh, 0);
     interpreter->addNative("function Math.atanh(a)", scMathATanh, 0);
-       
+    
+	interpreter->addNative("function Math.PI()", scMathPI, 0);	
     interpreter->addNative("function Math.E()", scMathE, 0);
     interpreter->addNative("function Math.log(a)", scMathLog, 0);
     interpreter->addNative("function Math.log10(a)", scMathLog10, 0);
@@ -315,7 +324,7 @@ __declspec(dllexport) void registerLib(JAIL::JInterpreter *interpreter) {
     interpreter->addNative("function Math.sqr(a)", scMathSqr, 0);
     interpreter->addNative("function Math.sqrt(a)", scMathSqrt, 0); 
 	interpreter->addNative("function Math.avg(arr)", scMathAvg, 0);
-
+	interpreter->addNative("function Math.floor(a)", scMathFloor, 0);
 }
 
 };
