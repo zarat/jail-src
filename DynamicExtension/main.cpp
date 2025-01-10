@@ -73,6 +73,8 @@ private:
     lib_t libHandle;
 };
 
+std::vector<MyLibrary*> loadedLibraries;
+
 typedef void (*DebugFunction)(JAIL::JInterpreter*);
 
 using namespace std;
@@ -116,6 +118,32 @@ void debug(JAIL::JObject *c, void *data) {
 void print(JAIL::JObject *c, void *data) {
     printf("%s", c->getParameter("str")->getString().c_str());       
 }
+
+
+void importJailLibrary(JAIL::JObject *c, void *data) {
+	
+	JAIL::JInterpreter* interpreter = reinterpret_cast<JAIL::JInterpreter*>(data);
+	
+    std::string dll = c->getParameter("dll")->getString(); 
+	
+	MyLibrary* myLib = new MyLibrary(dll.c_str());	
+	
+	if (!myLib->IsValid()) {
+		delete myLib;
+		return;
+	}
+	
+	DebugFunction debugFn = (DebugFunction)myLib->GetFunction("registerLib");
+	
+	if (debugFn) {
+		debugFn(interpreter);
+		loadedLibraries.push_back(myLib);
+	} else {
+		delete myLib;
+	}	
+}
+
+
 
 std::vector<std::string> getDllFiles(const std::string& folderPath) {
     std::vector<std::string> dllFiles;
@@ -190,8 +218,9 @@ int main(int argc, char **argv) {
     interpreter.addNative("function jail.debug(a)", debug, 0);
     interpreter.addNative("function print(str)", print, 0);
     */
-    
-
+	
+	interpreter.addNative("function using(dll)", importJailLibrary, &interpreter);
+	
     /*
 	// Load Plugins
     MyLibrary myLib1("./plugins/Test1.dll");
@@ -235,9 +264,12 @@ int main(int argc, char **argv) {
 	
 	
 	// Load plugins from directory
-	std::string pluginFolder = getExecutableDirectory(); //"./";
+	std::string pluginFolder = getExecutableDirectory(); // "./";
 	std::vector<std::string> dllFiles = getDllFiles(pluginFolder);
-	std::vector<MyLibrary*> loadedLibraries;
+	
+	//std::vector<MyLibrary*> loadedLibraries;
+	
+	/*
 	for (const std::string& dllPath : dllFiles) {
 		MyLibrary* myLib = new MyLibrary(dllPath.c_str());		
 		if (!myLib->IsValid()) {
@@ -252,7 +284,7 @@ int main(int argc, char **argv) {
 			delete myLib;
 		}
 	}
-
+	*/
 
 
     char *code;
