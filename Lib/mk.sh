@@ -1,5 +1,5 @@
 # This script will create a static library "libJail.a"
-# apt install dos2unix
+# apt install g++ dos2unix -y
 # dos2unix mk.sh
 # sh mk.sh
 
