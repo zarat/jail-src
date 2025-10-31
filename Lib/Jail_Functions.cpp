@@ -128,7 +128,7 @@ std::map<int, OpenFile> openFiles;
         printf("%c", c->getParameter("ch")->getInt());   
     }
 
-	__declspec(dllexport) void scConsoleWriteFormat(JAIL::JObject *c, void *) {
+	void scConsoleWriteFormat(JAIL::JObject *c, void *) {
 
 		std::string format = c->getParameter("format")->getString();
 
@@ -418,7 +418,7 @@ std::map<int, OpenFile> openFiles;
         
     }
 
-	__declspec(dllexport) void scReadFileRangeC(JAIL::JObject *c, void *data) {
+	void scReadFileRangeC(JAIL::JObject *c, void *data) {
 		int fileindex = std::stoi(c->getParameter("src")->getString());
 		int start = std::stoi(c->getParameter("start")->getString());
 		int end = std::stoi(c->getParameter("end")->getString());
@@ -488,7 +488,7 @@ std::map<int, OpenFile> openFiles;
 
 	}
 
-__declspec(dllexport) void scWriteFileRangeC(JAIL::JObject *c, void *data) {
+    void scWriteFileRangeC(JAIL::JObject *c, void *data) {
 
 		int fileindex = c->getParameter("src")->getInt();
 		OpenFile _f = openFiles[fileindex];
