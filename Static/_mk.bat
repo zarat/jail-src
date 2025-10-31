@@ -6,6 +6,7 @@ del *.exe
 @rem g++ -c Jail_MathFunctions.cpp -I.
 @rem ar rcs mathfunctions.a Jail_MathFunctions.o
 
-g++ -o jail.exe main.cpp jail.a 
+g++ -static -o jail.exe main.cpp jail.a 
+
 
 pause
