@@ -246,13 +246,16 @@ std::map<int, OpenFile> openFiles;
     // %d.%m.%Y %H:%M:%S
     void scSystemTimeF(JObject *c, void *) {       
         
-        char *fmtstr = (char*)c->getParameter("str")->getString().c_str();
+        //char *fmtstr = (char*)c->getParameter("str")->getString().c_str();
+		std::string fmtstr = c->getParameter("str")->getString();
+		
         time_t currentTime = time(NULL);
         struct tm* timeInfo = localtime(&currentTime);
         
         char fmt[50];
         
-        strftime(fmt, sizeof(fmt), fmtstr, timeInfo);
+        //strftime(fmt, sizeof(fmt), fmtstr, timeInfo);
+		strftime(fmt, sizeof(fmt), fmtstr.c_str(), timeInfo);
 
         c->getReturnVar()->setString(fmt);       
          
