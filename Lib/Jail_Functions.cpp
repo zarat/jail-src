@@ -596,15 +596,15 @@ std::map<int, OpenFile> openFiles;
         interpreter->addNative("function jail.readLine()", scConsoleReadLine, 0);
         //interpreter->addNative("function print(str)", scConsoleWrite, 0);
         //interpreter->addNative("function printc(ch)", scConsoleWriteByte, 0);
-	interpreter->addNative("function jail.format(format, args)", scConsoleWriteFormat, 0);
+	    interpreter->addNative("function jail.format(format, args)", scConsoleWriteFormat, 0);
 
         interpreter->addNative("function jail.fopen(src, mode)", scOpenFile, 0);
         interpreter->addNative("function jail.fread(src)", scReadFile, 0);
         interpreter->addNative("function jail.freadc(src)", scReadFileC, interpreter);
-	interpreter->addNative("function jail.freadrc(src, start, end)", scReadFileRangeC, 0);
+	    interpreter->addNative("function jail.freadrc(src, start, end)", scReadFileRangeC, 0);
         interpreter->addNative("function jail.fwrite(src, data)", scWriteFile, 0);
-	interpreter->addNative("function jail.fwritec(src, data)", scWriteFileC, 0);
-	interpreter->addNative("function Std.fwriterc(src, pos, data)", scWriteFileRangeC, 0);
+	    interpreter->addNative("function jail.fwritec(src, data)", scWriteFileC, 0);
+	    interpreter->addNative("function jail.fwriterc(src, pos, data)", scWriteFileRangeC, 0);
         interpreter->addNative("function jail.fclose(src)", scCloseFile, 0);
         
 
@@ -616,10 +616,7 @@ std::map<int, OpenFile> openFiles;
         interpreter->addNative("function jail.date()", scSystemDate, 0);
         interpreter->addNative("function jail.typeOf(v)", scTypeOf, interpreter);
         interpreter->addNative("function jail.import(src)", scImportFile, interpreter);
-    
-        // @deprecated
         interpreter->addNative("function jail.parse(jsCode)", scEval, interpreter);        
-
         interpreter->addNative("function jail.atob(data)", scBase64Encode, 0);
         interpreter->addNative("function jail.btoa(data)", scBase64Decode, 0); 
         interpreter->addNative("function jail.md5(data)", scMd5, 0);
@@ -628,9 +625,9 @@ std::map<int, OpenFile> openFiles;
         interpreter->addNative("function jail.cwd()", scCwd, 0);
         interpreter->addNative("function jail.chdir(str)", scChDir, 0);
 	    
-	interpreter->addNative("function jail.exit(code)", scExit, 0);
-	interpreter->addNative("function Std.regex(data, regex)", scRegexp, 0);
-	interpreter->addNative("function Std.regexreplace(data, regex, replace)", scRegexpReplace, 0);
+	    interpreter->addNative("function jail.exit(code)", scExit, 0);
+	    interpreter->addNative("function jail.regex(data, regex)", scRegexp, 0);
+	    interpreter->addNative("function jail.regexreplace(data, regex, replace)", scRegexpReplace, 0);
         
     }
 
