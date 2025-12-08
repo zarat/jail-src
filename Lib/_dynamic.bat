@@ -4,6 +4,6 @@ set obj=Char.o Integer.o Double.o String.o Array.o Object.o Jail_Functions.o Jai
 
 g++ -c Jail.cpp %src%
 
-g++ -shared Jail.o %obj% -o jail.dll
+g++ -static-libgcc -static-libstdc++ -shared Jail.o %obj% -o jail.dll
 
 pause
