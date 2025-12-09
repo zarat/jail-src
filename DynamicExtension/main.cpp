@@ -212,12 +212,10 @@ int main(int argc, char **argv) {
     //JAIL::registerMathFunctions(&interpreter);
     
     // register custom inline functions
-	/*
     interpreter.addNative("function jail.eval(code)", eval, &interpreter);
     interpreter.addNative("function jail.exec(code)", exec, &interpreter);
     interpreter.addNative("function jail.debug(a)", debug, 0);
     interpreter.addNative("function print(str)", print, 0);
-    */
 	
 	interpreter.addNative("function using(dll)", importJailLibrary, &interpreter);
 	
