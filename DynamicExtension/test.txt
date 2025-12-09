@@ -1,2 +1,101 @@
-var name = Test.prompt("Whats your name?: ");
-Std.print(name);
+/*
+using("Socket.dll");
+
+var socket = Socket.startServer(27015);
+
+function send(client, data) {
+	
+	// HTTP Header
+	Socket.sendMessage(client, "HTTP/1.1 200 OK\n");
+	Socket.sendMessage(client, "MyKey: MyValue\n");
+	Socket.sendMessage(client, "\r\n");
+	
+	// HTML Data
+	Socket.sendMessage(client, data);
+	
+}
+
+function parse(msg) {
+	
+	var parts = msg.split("\r\n")[0].split(" ");
+	return {"Method": parts[0], "Path": parts[1]};
+	
+}
+
+while(true) {
+	
+	var client = Socket.acceptClient();
+	var msg = Socket.receiveMessage(client, 1024);
+	var peer = Socket.getIp(client);
+	var tmp = parse(msg);
+	
+	if(tmp.Path.indexOf("/tmp") != -1) 
+		send(client, "<h1>Welcome to /tmp</h1><p>Go back to <a href=\"../\">Homepage</a></p>");
+	else if(tmp.Path.indexOf("/json") != -1) 
+		send(client, jail.debug(String) + "\n");
+	else 
+		send(client, "<h1>Welcome</h1><p>Go to <a href=\"../tmp\">/tmp</a></p>");
+	
+	Socket.closeClient(client);
+	
+}
+
+Socket.stopServer();
+*/
+
+
+/*
+using("GDI.dll");
+
+var gfx = GDI.Graphics(100, 100);
+
+var brush = GDI.Brush(0,255,255,128);
+var pen = GDI.Pen(0,128,255,128, 2);
+var font = GDI.Font("Arial", 10, 1);
+
+// Draw the X
+GDI.DrawLine(gfx, pen, 0, 0, 50, 50);
+GDI.DrawLine(gfx, pen, 50, 50, 100, 100);
+GDI.DrawLine(gfx, pen, 50,50,100,0);
+GDI.DrawLine(gfx, pen, 50,50,0,100);
+
+// Draw a rectangle
+GDI.FillRect(gfx, brush, 0, 0, 50, 50);
+
+GDI.DrawEllipse(gfx, brush, 50, 50, 50, 50);
+
+GDI.DrawText(gfx, font, brush, "Hello world", 10,10,80,10, 1, 1);
+
+// Save as image
+GDI.Save(gfx, "main.png");
+
+GDI.Destroy(gfx);
+*/
+
+
+/*
+using("mysql.dll");
+
+var conn = MySQL.connect("172.21.0.134", "root", "lunikoff", "test");
+
+MySQL.query(conn, "DELETE FROM test;");
+
+MySQL.query(conn, "INSERT INTO test(name) VALUES ('Anna');");
+MySQL.query(conn, "INSERT INTO test(name) VALUES ('jango');");
+MySQL.query(conn, "INSERT INTO test(name) VALUES ('Poldi');");
+
+//MySQL.query(conn, "UPDATE test SET name='Jango' WHERE name='jango';");
+
+MySQL.query(conn, "SELECT * FROM test;");
+
+var tmp = MySQL.fetchAssoc(conn);
+while(tmp != -1) {
+	//print("ID: " + tmp[0] + "; Name: " + tmp[1] + "\n"); 
+	print("ID: " + tmp.id + "; Name: " + tmp.name + "\n"); 
+	//print(jail.debug(tmp));
+	tmp = MySQL.fetchAssoc(conn);
+}
+
+MySQL.close(conn);
+
+*/
