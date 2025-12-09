@@ -89,7 +89,7 @@ MySQL.query(conn, "INSERT INTO test(name) VALUES ('Poldi');");
 MySQL.query(conn, "SELECT * FROM test;");
 
 var tmp = MySQL.fetchAssoc(conn);
-while(tmp != -1) {
+while(tmp != "No more rows.") {
 	//print("ID: " + tmp[0] + "; Name: " + tmp[1] + "\n"); 
 	print("ID: " + tmp.id + "; Name: " + tmp.name + "\n"); 
 	//print(jail.debug(tmp));
