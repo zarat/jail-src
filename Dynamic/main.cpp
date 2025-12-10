@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 
     bool isCaseInsensitive = false;
     int opt;
-    enum { EXEC_MODE, , INTERACTIVE_MODE, SCRIPT_MODE } mode = SCRIPT_MODE;
+    enum { EXEC_MODE, INTERACTIVE_MODE, SCRIPT_MODE } mode = SCRIPT_MODE;
 
     while ((opt = getopt(argc, argv, "ei")) != -1) {
         switch (opt) {
