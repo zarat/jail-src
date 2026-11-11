@@ -205,14 +205,32 @@ std::map<int, OpenFile> openFiles;
     /**
      * setEnv() 
      * set environment JObject
+	 * setenv() is only guaranteed to be available in POSIX libs
      */
+	/*
     void scSetEnv(JObject *c, void *data) {
         char *k = (char*)c->getParameter("k")->getString().c_str();
         char *v = (char*)c->getParameter("v")->getString().c_str();
         setenv(k, v, 1); // 1 for overwrite
         c->getReturnVar()->setInt(1);
     }
-    
+	 */
+	/**
+	 * This is a portable version
+	 */
+    void scSetEnv(JObject *c, void *data) {
+		const char *k = c->getParameter("k")->getString().c_str();
+		const char *v = c->getParameter("v")->getString().c_str();
+
+		#ifdef _WIN32
+		int result = _putenv_s(k, v);
+		#else
+		int result = setenv(k, v, 1);
+		#endif
+
+		c->getReturnVar()->setInt(result == 0 ? 1 : 0);
+	}
+
     /** 
      * get time as array (hour, min, sec, millisec, microsec)
      */
